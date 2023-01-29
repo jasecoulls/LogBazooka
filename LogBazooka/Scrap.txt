@@ -1,0 +1,26 @@
+
+
+Ints
+=====
+dwData = 0
+cbData = The Integer
+lpData = NULL
+
+
+Strings
+=======
+dwData = 1
+cbData = The Length of the String
+lpData = The String
+
+Hex
+===
+dwData = 2
+cbData = The number to display as hex.
+
+
+
+
+
+
+        
