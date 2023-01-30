@@ -15,5 +15,7 @@ enum LogType {
 
 // Function prototypes.
 void ClearLog(HWND hEdit);
+BOOL FileExists(LPCTSTR szPath);
+void SaveLog(HWND hEdit, HWND MainWindow);
 
 std::string int_to_hex(int i);
