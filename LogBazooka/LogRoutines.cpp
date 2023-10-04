@@ -87,11 +87,15 @@ void SaveLog(HWND hEdit, HWND MainWindow)
 			MessageBox(MainWindow, L"Error opening file.", L"Error", MB_ICONERROR);
 			return;
 		}
-		
-		// Write the text to the file.
+
+		// Write the BOM for UTF-16
+		BYTE bom[] = { 0xFF, 0xFE };
 		DWORD dwBytesWritten = 0;
-		WriteFile(hFile, buffer, len * sizeof(TCHAR), &dwBytesWritten, NULL);
-		
+		WriteFile(hFile, bom, sizeof(bom), &dwBytesWritten, NULL);
+
+		// Write the text to the file.
+		WriteFile(hFile, buffer, len * sizeof(wchar_t), &dwBytesWritten, NULL);
+
 		// Close the file.
 		CloseHandle(hFile);
 		
