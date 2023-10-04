@@ -136,12 +136,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
+    <ClInclude Include="HexDumper.h" />
     <ClInclude Include="LogBazooka.h" />
     <ClInclude Include="LogRoutines.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="HexDumper.cpp" />
     <ClCompile Include="LogBazooka.cpp" />
     <ClCompile Include="LogRoutines.cpp" />
   </ItemGroup>

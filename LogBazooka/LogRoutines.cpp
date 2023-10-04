@@ -103,10 +103,4 @@ void SaveLog(HWND hEdit, HWND MainWindow)
 		
 	}
 	
-	
-	
-	
-	
-	
-	
 }

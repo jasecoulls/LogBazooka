@@ -4,6 +4,7 @@
 #include "framework.h"
 #include "LogBazooka.h"
 #include "LogRoutines.h"
+#include "HexDumper.h"
 #include <string>
 #include <iostream>
 
@@ -21,6 +22,7 @@ HWND hLogEdit;                                  // The log edit box.
 
 HFONT hUIFont;                                  // This is the font we use for the UI.
 HFONT hLogFont;                                 // This is the font we use for the log.
+
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -87,7 +89,7 @@ void MakeHighDPIAware() {
 /// </summary>
 void CreateUI() 
 {
-    // Add the log: label.
+    // Add the "Log:" label.
 	hLogLabel = CreateWindowEx(
 		0, L"STATIC", L"Log:",
 		WS_CHILD | WS_VISIBLE | SS_LEFT,
@@ -95,7 +97,7 @@ void CreateUI()
 		hThisWnd, NULL, hInst, NULL);
 	SendMessage(hLogLabel, WM_SETFONT, (WPARAM)hUIFont, TRUE);
     
-	// Add the log edit box.
+	// Add the log textbox.
 	hLogEdit = CreateWindowEx(
 		WS_EX_CLIENTEDGE, L"EDIT", L"",
 		WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
@@ -172,6 +174,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 
+
 /// <summary>
 /// Resizes the hLogEdit window to fit the main window with a 10 pixel margin.
 /// </summary>
@@ -198,11 +201,10 @@ void ResizeLogWindowToFitMainWindow()
 			// Move the hLogEdit window to the new position.
 			MoveWindow(hLogEdit, MARGIN, TOP_OFFSET, width, height, TRUE);
 		}
-        
-
     }
     
 }
+
 
 void AddStringToLog(std::wstring str)
 {
@@ -276,12 +278,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				AddStringToLog(wstr);
             }
 			else if (pcds->dwData == LOGTYPE_HEX) {
-				// Get the number value.
-				int newNumber = pcds->cbData;
-				// Convert to a hex string.
-				std::string hexValue = int_to_hex(newNumber);
-				std::wstring wstr = std::wstring(hexValue.begin(), hexValue.end());
-				AddStringToLog(wstr);
+                // Get the string length.
+                int stringLength = pcds->cbData;
+                const char* str = (const char*)(pcds->lpData);
+                // Convert to a wstring and add to log.
+                std::wstring wstr = std::wstring(str, str + stringLength);
+                std::wstring hexstr = HexView(wstr, stringLength);
+				AddStringToLog(hexstr);
             }
         }
         break;

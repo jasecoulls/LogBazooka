@@ -30,12 +30,18 @@
     <ClInclude Include="LogRoutines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HexDumper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LogBazooka.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LogRoutines.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HexDumper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
