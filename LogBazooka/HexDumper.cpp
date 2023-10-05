@@ -38,7 +38,6 @@ std::wstring HexView(std::wstring source, size_t size)
 			{
 				hex += L" - ";
 			}
-
 		}
 
 		// Pad with 00's if the chunk is not full.

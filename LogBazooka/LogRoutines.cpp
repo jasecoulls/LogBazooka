@@ -24,6 +24,7 @@ std::string int_to_hex(int i)
 	return stream.str();
 }
 
+
 BOOL FileExists(LPCTSTR szPath)
 {
 	DWORD dwAttrib = GetFileAttributes(szPath);
