@@ -100,7 +100,7 @@ void CreateUI()
 	// Add the log textbox.
 	hLogEdit = CreateWindowEx(
 		WS_EX_CLIENTEDGE, L"EDIT", L"",
-		WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
+		WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL,
 		10, 40, 500, 500,
 		hThisWnd, NULL, hInst, NULL);
 	SendMessage(hLogEdit, WM_SETFONT, (WPARAM)hLogFont, TRUE);
