@@ -10,7 +10,7 @@
 void ClearLog(HWND hEdit)
 {
 	// Clear the log
-	SendMessage(hEdit, WM_SETTEXT, 0, (LPARAM)L"LogBazooka - Ready...");
+	SendMessage(hEdit, WM_SETTEXT, 0, (LPARAM)L"LogBazooka - Ready...\n");
 
 }
 
