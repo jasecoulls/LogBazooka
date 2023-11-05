@@ -5,6 +5,8 @@
 #include "LogBazooka.h"
 #include "LogRoutines.h"
 #include "HexDumper.h"
+#include "DarkMode.h"
+#include "UI.h"
 #include <string>
 #include <iostream>
 
@@ -31,7 +33,6 @@ void                ResizeLogWindowToFitMainWindow();
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 void                AddStringToLog(std::wstring str);
-void                CreateUI();
 void                MakeHighDPIAware();
 
 
@@ -84,28 +85,7 @@ void MakeHighDPIAware() {
 	}
 }
 
-/// <summary>
-/// Creates the UI and sets the appropriate fonts.
-/// </summary>
-void CreateUI() 
-{
-    // Add the "Log:" label.
-	hLogLabel = CreateWindowEx(
-		0, L"STATIC", L"Log:",
-		WS_CHILD | WS_VISIBLE | SS_LEFT,
-		10, 10, 100, 30,
-		hThisWnd, NULL, hInst, NULL);
-	SendMessage(hLogLabel, WM_SETFONT, (WPARAM)hUIFont, TRUE);
-    
-	// Add the log textbox.
-	hLogEdit = CreateWindowEx(
-		WS_EX_CLIENTEDGE, L"EDIT", L"",
-		WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL,
-		10, 40, 500, 500,
-		hThisWnd, NULL, hInst, NULL);
-	SendMessage(hLogEdit, WM_SETFONT, (WPARAM)hLogFont, TRUE);
-	ClearLog(hLogEdit);
-}
+
 
 //
 //  FUNCTION: MyRegisterClass()
@@ -159,17 +139,22 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hThisWnd = hWnd;
    
    // Set hUIFont to whatever the system font currently is.
-   NONCLIENTMETRICS ncm{};
-   ncm.cbSize = sizeof(NONCLIENTMETRICS);
-   SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0);
-   hUIFont = CreateFontIndirect(&ncm.lfMessageFont);
+   hUIFont = GetSystemFont();
    
    // Set hLogFont to Consolas.
    hLogFont = CreateFont(16, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Consolas");
    
-   CreateUI();
+   // Create the window and get it on the screen.
+   // This also populates the hLogLabel and hLogEdit handles.
+   CreateUI(hThisWnd, hInst, hUIFont, hLogFont, hLogLabel, hLogEdit);
    ShowWindow(hWnd, nCmdShow);
+   ClearLog(hLogEdit);
    UpdateWindow(hWnd);
+   
+   // Check if the user has enabled dark mode.
+   if (ShouldAppsUseDarkMode()) {
+       EnableDarkModeForApp(hWnd);
+   }
 
    return TRUE;
 }
@@ -211,10 +196,10 @@ void AddStringToLog(std::wstring str)
 	// Get the current text length.
 	int length = GetWindowTextLength(hLogEdit);
 
-	// Put the selection at the end of text.
+	// Put the selection/carat at the end of the text.
 	SendMessage(hLogEdit, EM_SETSEL, (WPARAM)length, (LPARAM)length);
 
-	// prepend a newline.
+	// Prepend a newline.
     std::wstring newstr = L"\r\n" + str;
     
 	// Replace the selection.
@@ -244,15 +229,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
-            case IDM_SAVE:
-                SaveLog(hLogEdit, hThisWnd);
-                break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
             case IDM_FILE_NEW:
         		ClearLog(hLogEdit);
 				break;
+            case IDM_SAVE:
+                SaveLog(hLogEdit, hThisWnd);
+                break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
