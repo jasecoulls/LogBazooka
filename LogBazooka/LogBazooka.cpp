@@ -1,11 +1,14 @@
 // LogBazooka.cpp : Defines the entry point for the application.
 //
 
+#pragma comment(linker,"\"/manifestdependency:type='win32' \
+name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
+processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+
 #include "framework.h"
 #include "LogBazooka.h"
 #include "LogRoutines.h"
 #include "HexDumper.h"
-#include "DarkMode.h"
 #include "UI.h"
 #include <string>
 #include <iostream>
@@ -24,6 +27,17 @@ HWND hLogEdit;                                  // The log edit box.
 
 HFONT hUIFont;                                  // This is the font we use for the UI.
 HFONT hLogFont;                                 // This is the font we use for the log.
+
+// Global variables to hold color settings for dark and light themes
+COLORREF g_textColorDark = RGB(255, 255, 255);
+COLORREF g_bkColorDark = RGB(50, 50, 50);
+HBRUSH g_bkBrushDark = CreateSolidBrush(g_bkColorDark);
+
+COLORREF g_textColorLight = RGB(0, 0, 0);
+COLORREF g_bkColorLight = RGB(255, 255, 255);
+HBRUSH g_bkBrushLight = CreateSolidBrush(g_bkColorLight);
+
+bool g_useDarkTheme = false;
 
 
 // Forward declarations of functions included in this code module:
@@ -151,11 +165,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    ClearLog(hLogEdit);
    UpdateWindow(hWnd);
    
-   // Check if the user has enabled dark mode.
-   if (ShouldAppsUseDarkMode()) {
-       EnableDarkModeForApp(hWnd);
-   }
-
+ 
    return TRUE;
 }
 
@@ -189,6 +199,33 @@ void ResizeLogWindowToFitMainWindow()
     }
     
 }
+
+
+void ApplyThemeToControls(bool useDarkTheme)
+{
+    // Update global theme variables
+    g_useDarkTheme = useDarkTheme;
+
+    // Update text and background colors based on the theme
+    COLORREF textColor = useDarkTheme ? g_textColorDark : g_textColorLight;
+    COLORREF bkColor = useDarkTheme ? g_bkColorDark : g_bkColorLight;
+    HBRUSH bkBrush = useDarkTheme ? g_bkBrushDark : g_bkBrushLight;
+
+    // Apply to Log Label
+    SendMessage(hLogLabel, WM_CTLCOLORSTATIC, (WPARAM)GetDC(hLogLabel), (LPARAM)bkBrush);
+    SetTextColor(GetDC(hLogLabel), textColor);
+    SetBkColor(GetDC(hLogLabel), bkColor);
+
+    // Apply to Log Edit
+    SendMessage(hLogEdit, WM_CTLCOLOREDIT, (WPARAM)GetDC(hLogEdit), (LPARAM)bkBrush);
+    SetTextColor(GetDC(hLogEdit), textColor);
+    SetBkColor(GetDC(hLogEdit), bkColor);
+
+    // Refresh the window to reflect the changes
+    InvalidateRect(hThisWnd, NULL, TRUE);
+    UpdateWindow(hThisWnd);
+}
+
 
 
 void AddStringToLog(std::wstring str)
@@ -280,11 +317,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case WM_CTLCOLORSTATIC:
         {
             HDC hdcStatic = (HDC)wParam;
-            SetBkMode(hdcStatic, TRANSPARENT);
-            return (INT_PTR)(HBRUSH)GetStockObject(NULL_BRUSH);
+            if (g_useDarkTheme) {
+                SetTextColor(hdcStatic, g_textColorDark);
+                SetBkColor(hdcStatic, g_bkColorDark);
+                return (LRESULT)g_bkBrushDark;
+            }
+            else {
+                SetTextColor(hdcStatic, g_textColorLight);
+                SetBkColor(hdcStatic, g_bkColorLight);
+                return (LRESULT)g_bkBrushLight;
+            }
         }
         break;
-        
+
+        case WM_CTLCOLOREDIT:
+        {
+            HDC hdcEdit = (HDC)wParam;
+            if (g_useDarkTheme) {
+                SetTextColor(hdcEdit, g_textColorDark);
+                SetBkColor(hdcEdit, g_bkColorDark);
+                return (LRESULT)g_bkBrushDark;
+            }
+            else {
+                SetTextColor(hdcEdit, g_textColorLight);
+                SetBkColor(hdcEdit, g_bkColorLight);
+                return (LRESULT)g_bkBrushLight;
+            }
+        }
+        break;
 
         case WM_SIZE:
         {

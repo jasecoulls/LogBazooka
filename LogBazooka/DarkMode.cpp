@@ -27,7 +27,6 @@ bool ShouldAppsUseDarkMode() {
 void EnableDarkModeForApp(HWND hwnd) {
 	// Set window to dark mode
 	SetWindowTheme(hwnd, L"DarkMode_Explorer", NULL);
-	//DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &(BOOL) {TRUE}, sizeof(BOOL));
 	BOOL isDarkMode = TRUE;
 	DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &isDarkMode, sizeof(isDarkMode));
 }
